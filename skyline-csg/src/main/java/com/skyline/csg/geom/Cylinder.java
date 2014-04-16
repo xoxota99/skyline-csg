@@ -15,7 +15,10 @@ public class Cylinder extends CSG {
 	// working vars
 	protected Vector3d s, e, ray, axisZ, axisY, axisX;
 
-	protected Cylinder(){}
+	public Cylinder() {
+		generatePolys();
+	}
+
 	/**
 	 * Create a Cylinder with the given radius, height, and number of radial
 	 * slices.
@@ -86,7 +89,8 @@ public class Cylinder extends CSG {
 
 		double angle = slice * Math.PI * 2; // what's the starting angle of the
 											// slice?
-//		System.out.println("slice: " + slice + ", angle: " + angle);
+											// System.out.println("slice: " +
+											// slice + ", angle: " + angle);
 		Vector3d out = new Vector3d(axisX); // vector pointing to the vertex (to
 											// be used for the normal).
 		out.scale(Math.cos(angle));

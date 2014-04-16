@@ -1,9 +1,14 @@
 package com.skyline.csg.jme3;
 
+import java.util.*;
+
+import javax.vecmath.*;
+
 import com.jme3.app.*;
 import com.jme3.light.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
+import com.jme3.math.Vector3f;
 import com.jme3.post.*;
 import com.jme3.post.filters.*;
 import com.jme3.post.ssao.*;
@@ -13,26 +18,34 @@ import com.jme3.scene.shape.*;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.*;
+import com.jme3.util.*;
 import com.skyline.csg.*;
 import com.skyline.csg.geom.*;
 
-public class TestApp extends SimpleApplication {
+/**
+ * Make a Sphere, then use a Quad to cut a piece off.
+ * 
+ * @author phil
+ * 
+ */
+public class ExtrudeTest extends SimpleApplication {
 
 	private Geometry g;
 
 	public static void main(String[] args) {
-		new TestApp().start();
+		new ExtrudeTest().start();
 	}
 
 	@Override
 	public void simpleInitApp() {
-		viewPort.setBackgroundColor(new ColorRGBA(0.266f, 0.266f, 0.4f, 1f));
+		viewPort.setBackgroundColor(new ColorRGBA(0.266f,0.266f,0.266f,1f));
 		attachSimpleShape();
 		DirectionalLight dl = attachSun();
 		attachAmbientLight();
+		viewPort.setBackgroundColor(ColorRGBA.Blue);
 		// attachShadows(dl);
 		// attachSSAO();
-		antialias();
+		// antialias();
 		flyCam.setMoveSpeed(10f);
 	}
 
@@ -76,7 +89,7 @@ public class TestApp extends SimpleApplication {
 
 	private void attachAmbientLight() {
 		AmbientLight al = new AmbientLight();
-		al.setColor(ColorRGBA.White.mult(0.1f));
+		al.setColor(ColorRGBA.White.mult(1f));
 		rootNode.addLight(al);
 	}
 
@@ -89,25 +102,58 @@ public class TestApp extends SimpleApplication {
 	}
 
 	public void attachSimpleShape() {
-		g = setupCSG();
+		// g = setupCSG();
+		g = setupExtrusion();
+		Geometry g2 = new Geometry("cube", JmeAdapter.fromCSG(new Cube(1, new Vector3d(-2, 0, 0))));
 
 		// Geometry gSphere = new Geometry("sphere", new Sphere(10, 10, .1f));
 
-		Material mat = setupLightedMaterial(false);
-		// Material mat = setupNormalMaterial(false);
+		 Material mat = setupLightedMaterial(false);
+//		Material mat = setupNormalMaterial(false);
 
 		g.setMaterial(mat);
-		g.setShadowMode(ShadowMode.CastAndReceive);
+		g2.setMaterial(mat);
+		// g.setShadowMode(ShadowMode.CastAndReceive);
 		long t0 = System.currentTimeMillis();
-		// TangentBinormalGenerator.generate(g);
+		TangentBinormalGenerator.generate(g);
 		long t1 = System.currentTimeMillis() - t0;
 		System.out.printf("Time to add binormalgenerator: %d", t1);
 		// gSphere.setMaterial(mat);
-		// gSphere.setShadowMode(ShadowMode.CastAndReceive);
-		// TangentBinormalGenerator.generate(gSphere);
+		// g.setShadowMode(ShadowMode.CastAndReceive);
+		// TangentBinormalGenerator.generate(g);
 		// rootNode.attachChild(gSphere);
 		rootNode.attachChild(g);
+		rootNode.attachChild(g2);
 
+	}
+
+	private Geometry setupExtrusion() {
+		// Here, we're deliberately flipping the starting poly, so we create a
+		// prism, with end polys facing "outwards".
+		Polygon poly = new Polygon(
+				new Vertex(
+						new Vector3d(0, 0, 0),
+						new Vector3d(0, -1, 0),
+						new TexCoord2f()),
+				new Vertex(
+						new Vector3d(2, 0, 0),
+						new Vector3d(0, -1, 0),
+						new TexCoord2f()),
+				new Vertex(
+						new Vector3d(2, 0, 2),
+						new Vector3d(0, -1, 0),
+						new TexCoord2f()),
+				new Vertex(
+						new Vector3d(0, 0, 2),
+						new Vector3d(0, -1, 0),
+						new TexCoord2f())
+				);
+
+		// List<Polygon> polys = Arrays.asList(new Polygon[]{poly});
+		// CSG csg = CSG.fromPolygons(polys);
+		CSG csg = poly.extrude(-10);
+		Mesh m = JmeAdapter.fromCSG(csg);
+		return new Geometry("results", m);
 	}
 
 	private Material setupNormalMaterial(boolean wireframe) {
@@ -121,41 +167,42 @@ public class TestApp extends SimpleApplication {
 		Material mat = new Material(assetManager, "res/Common/MatDefs/Light/Lighting.j3md");
 		// mat.setBoolean("UseMaterialColors", true);
 		mat.setBoolean("HighQuality", true);
-		mat.setBoolean("UseMaterialColors",true);
-		mat.setColor("Specular", ColorRGBA.White);	//setting this has no effect.
-		mat.setColor("Diffuse", new ColorRGBA(0.266f, 0.266f, 0.266f, 1f));	//setting this has no effect.
-		mat.setColor("Ambient", ColorRGBA.White); //setting this has no effect.
-		
-		mat.setFloat("Shininess", 10f); // [0,128]
+		mat.setColor("Specular", ColorRGBA.White);
+		mat.setColor("Diffuse", new ColorRGBA(0.984313f, 0.941176f, 0.858823f, 1f));
+		mat.setColor("Ambient", ColorRGBA.White); // Basically not used. I think
+													// this is broken...
+		mat.setFloat("Shininess", 0f); // [0,128]
 		mat.getAdditionalRenderState().setWireframe(wireframe);
 		return mat;
 	}
 
-	private Geometry setupCSG() {
-		CSG cube = new Cube(1);
-		CSG sphere = new com.skyline.csg.geom.Sphere(1.4,4);
-		CSG cyl = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		CSG cyl2 = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		cyl2.rotate((float) (Math.PI / 2),0,0);
-		CSG cyl3 = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		cyl3.rotate(0,0, (float) (Math.PI / 2));
+	private Geometry setupSlicedSphere() {
+		com.skyline.csg.geom.Sphere sphere = new com.skyline.csg.geom.Sphere();
+		com.skyline.csg.geom.Quad q = new com.skyline.csg.geom.Quad(10, 10, true);
+		// q.translate(new Vector3d(-1,-1,0));
+		q.rotate(new Quat4d(0, 1, 1, Math.PI)); // 45 degrees around Y axis.
+		q.translate(new Vector3d(1, 1, 0));
 
-		CSG csg = cube.intersect(sphere)
-				.subtract(cyl)
-				.subtract(cyl2)
-				.subtract(cyl3);
-		
+		CSG csg = sphere.intersect(q);
 		Mesh m = JmeAdapter.fromCSG(csg);
-
-		Geometry results = new Geometry("results", m);
-
-		return results;
+		return new Geometry("results", m);
 	}
+
+	private Geometry setupScoopedSphere() {
+		com.skyline.csg.geom.Sphere s1 = new com.skyline.csg.geom.Sphere();
+		com.skyline.csg.geom.Sphere s2 = new com.skyline.csg.geom.Sphere();
+		s2.translate(new Vector3d(.75, .75, 0));
+
+		CSG csg = s1.subtract(s2);
+		Mesh m = JmeAdapter.fromCSG(csg);
+		return new Geometry("results", m);
+	}
+
 	/**
 	 * 
 	 * @return
 	 */
-	private Geometry setupCSGFromJME() {
+	private Geometry setupCSG() {
 		long t0 = System.currentTimeMillis();
 		Mesh cube = new Box(1f, 1f, 1f);
 		Mesh sphere = new Sphere(50, 50, 1.4f);
@@ -247,5 +294,4 @@ public class TestApp extends SimpleApplication {
 
 		return new Geometry("results", m);
 	}
-
 }

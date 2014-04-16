@@ -149,15 +149,23 @@ public class Polygon {
 			int i2 = other.vertices.size() - 1 - i; // index in the flipped
 													// poly.
 			// assumption: Vertices are ordered in ccw order in the list.
-			pList.add(new Polygon(
-					this.vertices.get(i),
-					other.vertices.get(i2),
-					other.vertices.get((i2 + 1) % other.vertices.size())));
+			Polygon p1=new Polygon(
+					this.vertices.get(i).clone(),
+					other.vertices.get((i2 + 1) % other.vertices.size()).clone(),
+					other.vertices.get(i2).clone());
+			for(Vertex v : p1.vertices){
+				v.normal=p1.plane.normal;
+			}
+			pList.add(p1);
 
-			pList.add(new Polygon(
-					this.vertices.get(i),
-					this.vertices.get((i + 1) % this.vertices.size()),
-					other.vertices.get(i2)));
+			Polygon p2=new Polygon(
+					this.vertices.get(i).clone(),
+					other.vertices.get(i2).clone(),
+					this.vertices.get((i + 1) % this.vertices.size()).clone());
+			for(Vertex v : p2.vertices){
+				v.normal=p2.plane.normal;
+			}
+			pList.add(p2);
 		}
 
 		// TODO: If distance < 0, the normals should face "inwards". This is an

@@ -1,5 +1,7 @@
 package com.skyline.csg;
 
+import java.util.logging.*;
+
 import javax.vecmath.*;
 
 import com.skyline.csg.geom.*;
@@ -20,8 +22,8 @@ import com.skyline.csg.geom.*;
  */
 public class Vertex {
 
-	Vector3d pos, normal;
-	TexCoord2f tex;
+	public Vector3d pos, normal;
+	public TexCoord2f tex;
 
 	/**
 	 * @param pos position of the Vertex.
@@ -137,7 +139,7 @@ public class Vertex {
 			this.normal = Util.scaleNormal(normal, scaleFactor);
 		}
 		
-		//TODO: Text Texture scaling.
+		//TODO: texCoord scaling.
 	}
 
 	public TexCoord2f getTex() {

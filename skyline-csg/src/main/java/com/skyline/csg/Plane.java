@@ -122,7 +122,7 @@ public class Plane {
 		}
 	}
 /**
- * Create a plan from three points.
+ * Create a plane from three points. Points must be provided in CCW order.
  * 
  * @param a
  * @param b

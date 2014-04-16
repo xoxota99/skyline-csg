@@ -10,18 +10,23 @@ import com.jme3.post.ssao.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.*;
-import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.*;
+import com.jme3.system.*;
 import com.skyline.csg.*;
 import com.skyline.csg.geom.*;
 
-public class TestApp extends SimpleApplication {
+public class IcoTest extends SimpleApplication {
 
 	private Geometry g;
 
 	public static void main(String[] args) {
-		new TestApp().start();
+		AppSettings settings = new AppSettings(true);
+
+		IcoTest app = new IcoTest();
+		app.setSettings(settings);
+		app.setShowSettings(false);
+		app.start();
 	}
 
 	@Override
@@ -93,8 +98,8 @@ public class TestApp extends SimpleApplication {
 
 		// Geometry gSphere = new Geometry("sphere", new Sphere(10, 10, .1f));
 
-		Material mat = setupLightedMaterial(false);
-		// Material mat = setupNormalMaterial(false);
+		// Material mat = setupLightedMaterial(false);
+		Material mat = setupNormalMaterial(true);
 
 		g.setMaterial(mat);
 		g.setShadowMode(ShadowMode.CastAndReceive);
@@ -119,77 +124,34 @@ public class TestApp extends SimpleApplication {
 	private Material setupLightedMaterial(boolean wireframe) {
 
 		Material mat = new Material(assetManager, "res/Common/MatDefs/Light/Lighting.j3md");
-		// mat.setBoolean("UseMaterialColors", true);
+		mat.setBoolean("UseMaterialColors", true);
 		mat.setBoolean("HighQuality", true);
-		mat.setBoolean("UseMaterialColors",true);
-		mat.setColor("Specular", ColorRGBA.White);	//setting this has no effect.
-		mat.setColor("Diffuse", new ColorRGBA(0.266f, 0.266f, 0.266f, 1f));	//setting this has no effect.
-		mat.setColor("Ambient", ColorRGBA.White); //setting this has no effect.
-		
-		mat.setFloat("Shininess", 10f); // [0,128]
+		mat.setColor("Specular", ColorRGBA.White);
+		mat.setColor("Diffuse", ColorRGBA.White);// new ColorRGBA(0.266f,
+													// 0.266f, 0.266f, 1f));
+													// //setting this has no
+													// effect.
+		mat.setColor("Ambient", ColorRGBA.White); // Basically not used. I think
+													// this is broken...
+		mat.setFloat("Shininess", 0f); // [0,128]
 		mat.getAdditionalRenderState().setWireframe(wireframe);
 		return mat;
 	}
 
-	private Geometry setupCSG() {
-		CSG cube = new Cube(1);
-		CSG sphere = new com.skyline.csg.geom.Sphere(1.4,4);
-		CSG cyl = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		CSG cyl2 = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		cyl2.rotate((float) (Math.PI / 2),0,0);
-		CSG cyl3 = new com.skyline.csg.geom.Cylinder(.95,3,50);
-		cyl3.rotate(0,0, (float) (Math.PI / 2));
-
-		CSG csg = cube.intersect(sphere)
-				.subtract(cyl)
-				.subtract(cyl2)
-				.subtract(cyl3);
-		
-		Mesh m = JmeAdapter.fromCSG(csg);
-
-		Geometry results = new Geometry("results", m);
-
-		return results;
-	}
 	/**
 	 * 
 	 * @return
 	 */
-	private Geometry setupCSGFromJME() {
-		long t0 = System.currentTimeMillis();
-		Mesh cube = new Box(1f, 1f, 1f);
-		Mesh sphere = new Sphere(50, 50, 1.4f);
-		Mesh cyl = new Cylinder(4, 50, .95f, 3);
-		// Mesh tor = new Torus(50, 50, 1.025f, 0.05f);
+	private Geometry setupCSG() {
+//		 CSG csg = new Icosahedron(1);
+		CSG csg = new com.skyline.csg.geom.Sphere();
+//		CSG csg = new Cube();
+		// Cone cone = new Cone(1,3,20);
 
-		Geometry gCube = new Geometry("cube", cube);
-		Geometry gSphere = new Geometry("sphere", sphere);
-		Geometry gCyl = new Geometry("cyl", cyl);
-		Geometry gCyl2 = new Geometry("cyl2", cyl);
-		gCyl2.rotate((float) (Math.PI / 2), 0, 0);
-		Geometry gCyl3 = new Geometry("cyl3", cyl);
-		gCyl3.rotate(0, (float) (Math.PI / 2), 0);
+		Mesh m = JmeAdapter.fromCSG(csg);
 
-		// Geometry gTor = new Geometry("tor1",tor);
-		// gTor.setLocalTranslation(0, 0, 1);
-
-		long t1 = System.currentTimeMillis() - t0;
-		CSG csgCube = JmeAdapter.toCSG(gCube)
-				.intersect(JmeAdapter.toCSG(gSphere))
-				.subtract(JmeAdapter.toCSG(gCyl))
-				.subtract(JmeAdapter.toCSG(gCyl2))
-				.subtract(JmeAdapter.toCSG(gCyl3));
-		// .union(JmeAdapter.toCSG(gTor));
-		// 7 seconds
-		long t2 = System.currentTimeMillis() - t0;
-		Mesh m = JmeAdapter.fromCSG(csgCube);
-		// 12 seconds
-		long t3 = System.currentTimeMillis() - t0;
 		Geometry results = new Geometry("results", m);
-		// 12 seconds
-		long t4 = System.currentTimeMillis() - t0;
 
-		System.out.printf("t1: %d\nt2: %d\nt3: %d\nt4: %d\n", t1, t2, t3, t4);
 		return results;
 	}
 
