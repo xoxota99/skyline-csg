@@ -26,8 +26,9 @@ public class Vertex {
 	public TexCoord2f tex;
 
 	/**
-	 * @param pos position of the Vertex.
-	 * @param normal 
+	 * @param pos
+	 *            position of the Vertex.
+	 * @param normal
 	 * @verified
 	 */
 	public Vertex(Vector3d pos, Vector3d normal, TexCoord2f tex) {
@@ -63,9 +64,8 @@ public class Vertex {
 		Vector3d newNormal = new Vector3d(this.normal);
 		newNormal.interpolate(other.normal, t);
 
-
 		TexCoord2f newTex = new TexCoord2f(this.tex);
-		newTex.interpolate(other.tex, (float)t);
+		newTex.interpolate(other.tex, (float) t);
 
 		return new Vertex(newPos, newNormal, newTex);
 	}
@@ -74,8 +74,14 @@ public class Vertex {
 	 * @verified
 	 */
 	public Vertex clone() {
-		//constructor takes care of cloning these params.
+		// constructor takes care of cloning these params.
 		return new Vertex(this.pos, this.normal, this.tex);
+	}
+
+	public void translate(double x, double y, double z) {
+		pos.x += x;
+		pos.y += y;
+		pos.z += z;
 	}
 
 	public void translate(Vector3d v) {
@@ -138,8 +144,8 @@ public class Vertex {
 			// anisotropic, so we need to scale the normal as well.
 			this.normal = Util.scaleNormal(normal, scaleFactor);
 		}
-		
-		//TODO: texCoord scaling.
+
+		// TODO: texCoord scaling.
 	}
 
 	public TexCoord2f getTex() {

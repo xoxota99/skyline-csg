@@ -132,7 +132,7 @@ public class TestApp extends SimpleApplication {
 	}
 
 	private Geometry setupCSG() {
-		CSG cube = new Cube(1);
+		CSG cube = new Box(1);
 		CSG sphere = new com.skyline.csg.geom.Sphere(1.4,4);
 		CSG cyl = new com.skyline.csg.geom.Cylinder(.95,3,50);
 		CSG cyl2 = new com.skyline.csg.geom.Cylinder(.95,3,50);

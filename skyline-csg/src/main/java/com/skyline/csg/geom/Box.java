@@ -6,16 +6,41 @@ import javax.vecmath.*;
 
 import com.skyline.csg.*;
 
-public class Cube extends CSG {
-	private double radius = 1;
+public class Box extends CSG {
+	// private double radius = 1;
+	private double height = 1, width = 1, depth = 1;
 	private Vector3d center = new Vector3d(0, 0, 0);
 
-	public Cube() {
+	public Box() {
 		generatePolys();
 	}
 
-	public Cube(double radius) {
-		this.radius = radius;
+	/**
+	 * Shorthand constructor for a Box.
+	 * 
+	 * @param radius
+	 */
+	public Box(double radius) {
+		// this.radius = radius;
+		this.height = radius;
+		this.width = radius;
+		this.depth = radius;
+		generatePolys();
+	}
+
+	public Box(double width, double height, double depth) {
+		this.height = height;
+		this.width = width;
+		this.depth = depth;
+		generatePolys();
+	}
+
+	public Box(double width, double height, double depth, Vector3d center) {
+		// this.radius = radius;
+		this.height = height;
+		this.width = width;
+		this.depth = depth;
+		this.center = center;
 		generatePolys();
 	}
 
@@ -25,8 +50,11 @@ public class Cube extends CSG {
 	 * @param radius
 	 * @return
 	 */
-	public Cube(double radius, Vector3d center) {
-		this.radius = radius;
+	public Box(double radius, Vector3d center) {
+		// this.radius = radius;
+		this.height = radius;
+		this.width = radius;
+		this.depth = radius;
 		this.center = center;
 		generatePolys();
 	}
@@ -58,11 +86,11 @@ public class Cube extends CSG {
 				int xVal = (2 * ((i & 1) != 0 ? 1 : 0) - 1);
 				int yVal = (2 * ((i & 2) != 0 ? 1 : 0) - 1);
 				int zVal = (2 * ((i & 4) != 0 ? 1 : 0) - 1);
-				System.out.println("Cube vertex at (" + (center.x + this.radius * xVal)+", "+(center.x + this.radius * yVal)+", "+(center.x + this.radius * zVal)+")");
+				System.out.println("Box vertex at (" + (center.x + this.width / 2 * xVal) + ", " + (center.x + this.height / 2 * yVal) + ", " + (center.x + this.depth / 2 * zVal) + ")");
 				Vector3d pos = new Vector3d(
-						center.x + this.radius * xVal,
-						center.y + this.radius * yVal,
-						center.z + this.radius * zVal
+						center.x + this.width / 2 * xVal,
+						center.y + this.height / 2 * yVal,
+						center.z + this.depth / 2 * zVal
 						);
 
 				// Normal for this vertex, which is the same as the normal for
@@ -82,14 +110,14 @@ public class Cube extends CSG {
 		}
 	}
 
-	public double getRadius() {
-		return radius;
-	}
-
-	public void setRadius(double radius) {
-		this.radius = radius;
-		generatePolys();
-	}
+	// public double getRadius() {
+	// return radius;
+	// }
+	//
+	// public void setRadius(double radius) {
+	// this.radius = radius;
+	// generatePolys();
+	// }
 
 	public Vector3d getCenter() {
 		return center;
@@ -97,6 +125,33 @@ public class Cube extends CSG {
 
 	public void setCenter(Vector3d center) {
 		this.center = center;
+		generatePolys();
+	}
+
+	public double getHeight() {
+		return height;
+	}
+
+	public void setHeight(double height) {
+		this.height = height;
+		generatePolys();
+	}
+
+	public double getWidth() {
+		return width;
+	}
+
+	public void setWidth(double width) {
+		this.width = width;
+		generatePolys();
+	}
+
+	public double getDepth() {
+		return depth;
+	}
+
+	public void setDepth(double depth) {
+		this.depth = depth;
 		generatePolys();
 	}
 }

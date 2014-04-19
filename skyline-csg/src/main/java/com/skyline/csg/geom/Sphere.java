@@ -17,6 +17,10 @@ public class Sphere extends Icosahedron {
 		subdivide(lod);
 	}
 
+	public Sphere(double radius){
+		this.radius = radius;
+		subdivide(lod);
+	}
 	public Sphere() {
 		subdivide(lod);
 	}

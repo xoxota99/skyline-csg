@@ -1,9 +1,12 @@
 package com.skyline.csg.jme3;
 
+import javax.vecmath.*;
+
 import com.jme3.app.*;
 import com.jme3.light.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
+import com.jme3.math.Vector3f;
 import com.jme3.post.*;
 import com.jme3.post.filters.*;
 import com.jme3.post.ssao.*;
@@ -15,6 +18,7 @@ import com.jme3.shadow.*;
 import com.jme3.system.*;
 import com.skyline.csg.*;
 import com.skyline.csg.geom.*;
+import com.skyline.csg.geom.Box;
 
 public class IcoTest extends SimpleApplication {
 
@@ -94,12 +98,12 @@ public class IcoTest extends SimpleApplication {
 	}
 
 	public void attachSimpleShape() {
-		g = setupCSG();
-
+		// g = setupCSG();
+		g = setupBuilding();
 		// Geometry gSphere = new Geometry("sphere", new Sphere(10, 10, .1f));
 
-		// Material mat = setupLightedMaterial(false);
-		Material mat = setupNormalMaterial(true);
+		Material mat = setupLightedMaterial(false);
+		// Material mat = setupNormalMaterial(false);
 
 		g.setMaterial(mat);
 		g.setShadowMode(ShadowMode.CastAndReceive);
@@ -143,9 +147,9 @@ public class IcoTest extends SimpleApplication {
 	 * @return
 	 */
 	private Geometry setupCSG() {
-//		 CSG csg = new Icosahedron(1);
+		// CSG csg = new Icosahedron(1);
 		CSG csg = new com.skyline.csg.geom.Sphere();
-//		CSG csg = new Cube();
+		// CSG csg = new Box();
 		// Cone cone = new Cone(1,3,20);
 
 		Mesh m = JmeAdapter.fromCSG(csg);
@@ -155,59 +159,41 @@ public class IcoTest extends SimpleApplication {
 		return results;
 	}
 
+	private Geometry setupBuilding_old() {
+		float r2 = 0.706f * 2;
+
+		// example of transitivity (daisy-chaining).
+		CSG csg = new com.skyline.csg.geom.Sphere(1)	//Create a sphere
+				.subtract(new Box(2)
+					.translate(0, -.5, 0, "floorCutter")
+				, "dome")								// Cut the bottom 3/4 or so off, to make a solid dome.
+				.intersect(new Box(r2, 20d, r2), "cutDome")		// Cut the sides off.
+				.subtract(new com.skyline.csg.geom.Sphere(1)	
+					.translate(0, -0.01, 0, "hollow")			// Hollow out the inside of the dome.
+				, "hollowCutDome");
+
+		Mesh m = JmeAdapter.fromCSG(csg);
+
+		Geometry results = new Geometry("results", m);
+
+		return results;
+	}
+	
 	private Geometry setupBuilding() {
-		Mesh dome = new Dome(new Vector3f(0, 0, 0), 50, 50, 10f, false);
-		Mesh cutter = new Box(1f, 50f, 1f);
-		Mesh cube = new Box(1f, 1f, 1f);
+		float r2 = 0.706f * 2;
 
-		Geometry gCube = new Geometry("cube", cube);
-		Geometry gDome = new Geometry("dome", dome);
+		// example of transitivity (daisy-chaining).
+		CSG csg = new com.skyline.csg.geom.Sphere(1)	//Create a sphere
+				.intersect(new Box(r2, 2, r2)
+					.translate(0,1.5,0), "cutDome")		// Cut the bottom and sides off.
+				.subtract(new com.skyline.csg.geom.Sphere(1)	
+					.translate(0, -0.01, 0, "hollow")			// Hollow out the inside of the dome.
+				, "hollowCutDome");
 
-		CSG csgDome = JmeAdapter.toCSG(gDome).subtract((JmeAdapter.toCSG(cutter).inverse()));
+		Mesh m = JmeAdapter.fromCSG(csg);
 
-		return new Geometry("results", JmeAdapter.fromCSG(JmeAdapter.toCSG(gCube).union(csgDome)));
+		Geometry results = new Geometry("results", m);
+
+		return results;
 	}
-
-	private Geometry setupCSGWithTranslation() {
-		Mesh cube = new Box(1f, 1f, 1f);
-		Mesh sphere = new Sphere(50, 50, 1.4f);
-		Mesh sphere2 = new Sphere(50, 50, 1.375f);
-
-		Geometry gCube = new Geometry("cube", cube);
-		Geometry gSphere = new Geometry("sphere", sphere);
-		Geometry gSphere2 = new Geometry("sphere2", sphere2);
-
-		gCube.setLocalTranslation(.5f, .5f, .5f);
-		gSphere.setLocalTranslation(.5f, -.5f, .5f);
-		gSphere2.setLocalTranslation(.5f, 1f, .5f);
-
-		CSG csgCube = JmeAdapter.toCSG(gCube)
-				.intersect(JmeAdapter.toCSG(gSphere))
-				.subtract(JmeAdapter.toCSG(gSphere2));
-		Mesh m = JmeAdapter.fromCSG(csgCube);
-
-		return new Geometry("results", m);
-	}
-
-	private Geometry setupCSGWithScale() {
-		Mesh cube = new Box(1f, 1f, 1f);
-		Mesh sphere = new Sphere(50, 50, 1.4f);
-		Mesh sphere2 = new Sphere(50, 50, 1.375f);
-
-		Geometry gCube = new Geometry("cube", cube);
-		Geometry gSphere = new Geometry("sphere", sphere);
-		Geometry gSphere2 = new Geometry("sphere2", sphere2);
-
-		gCube.setLocalScale(2f);
-		gSphere.setLocalScale(2f);
-		gSphere2.setLocalScale(2f);
-
-		CSG csgCube = JmeAdapter.toCSG(gCube)
-				.intersect(JmeAdapter.toCSG(gSphere))
-				.subtract(JmeAdapter.toCSG(gSphere2));
-		Mesh m = JmeAdapter.fromCSG(csgCube);
-
-		return new Geometry("results", m);
-	}
-
 }

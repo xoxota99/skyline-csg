@@ -15,6 +15,7 @@ import com.jme3.post.ssao.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.*;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.*;
@@ -104,7 +105,7 @@ public class ExtrudeTest extends SimpleApplication {
 	public void attachSimpleShape() {
 		// g = setupCSG();
 		g = setupExtrusion();
-		Geometry g2 = new Geometry("cube", JmeAdapter.fromCSG(new Cube(1, new Vector3d(-2, 0, 0))));
+		Geometry g2 = new Geometry("cube", JmeAdapter.fromCSG(new com.skyline.csg.geom.Box(1, new Vector3d(-2, 0, 0))));
 
 		// Geometry gSphere = new Geometry("sphere", new Sphere(10, 10, .1f));
 
@@ -128,7 +129,7 @@ public class ExtrudeTest extends SimpleApplication {
 	}
 
 	private Geometry setupExtrusion() {
-		// Here, we're deliberately flipping the starting poly, so we create a
+		// Here, we're deliberately flipping the starting poly (by setting the normals inverted), so we create a
 		// prism, with end polys facing "outwards".
 		Polygon poly = new Polygon(
 				new Vertex(
@@ -151,7 +152,7 @@ public class ExtrudeTest extends SimpleApplication {
 
 		// List<Polygon> polys = Arrays.asList(new Polygon[]{poly});
 		// CSG csg = CSG.fromPolygons(polys);
-		CSG csg = poly.extrude(-10);
+		CSG csg = poly.extrude(-10);	//negative, because the poly is flipped.
 		Mesh m = JmeAdapter.fromCSG(csg);
 		return new Geometry("results", m);
 	}
@@ -238,19 +239,6 @@ public class ExtrudeTest extends SimpleApplication {
 
 		System.out.printf("t1: %d\nt2: %d\nt3: %d\nt4: %d\n", t1, t2, t3, t4);
 		return results;
-	}
-
-	private Geometry setupBuilding() {
-		Mesh dome = new Dome(new Vector3f(0, 0, 0), 50, 50, 10f, false);
-		Mesh cutter = new Box(1f, 50f, 1f);
-		Mesh cube = new Box(1f, 1f, 1f);
-
-		Geometry gCube = new Geometry("cube", cube);
-		Geometry gDome = new Geometry("dome", dome);
-
-		CSG csgDome = JmeAdapter.toCSG(gDome).subtract((JmeAdapter.toCSG(cutter).inverse()));
-
-		return new Geometry("results", JmeAdapter.fromCSG(JmeAdapter.toCSG(gCube).union(csgDome)));
 	}
 
 	private Geometry setupCSGWithTranslation() {

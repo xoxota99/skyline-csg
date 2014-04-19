@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="lib/jme3/jbullet.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/jinput.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/jME3-blender.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-core.jar" sourcepath="/jme3"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-core.jar" sourcepath="/jmonkeyengine-master"/>
 	<classpathentry kind="lib" path="lib/jme3/jME3-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/jME3-effects.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/jME3-jbullet.jar"/>
